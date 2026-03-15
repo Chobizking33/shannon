@@ -44,10 +44,9 @@ export function start(args: StartArgs): void {
   const config = args.config ? resolveConfig(args.config) : undefined;
   ensureDeliverables(repo.hostPath);
 
-  // 4. Ensure workspaces dir is writable by container user (UID 1001)
+  // 4. Ensure workspaces dir exists
   const workspacesDir = getWorkspacesDir();
   fs.mkdirSync(workspacesDir, { recursive: true });
-  fs.chmodSync(workspacesDir, 0o777);
 
   // 5. Handle router env
   if (useRouter) {

@@ -78,10 +78,9 @@ export function resolveConfig(configArg: string): MountPair {
 }
 
 /**
- * Ensure the deliverables directory exists and is writable by the container user.
+ * Ensure the deliverables directory exists inside the repo.
  */
 export function ensureDeliverables(repoHostPath: string): void {
   const deliverables = path.join(repoHostPath, 'deliverables');
   fs.mkdirSync(deliverables, { recursive: true });
-  fs.chmodSync(deliverables, 0o777);
 }

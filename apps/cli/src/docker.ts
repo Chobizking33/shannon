@@ -207,6 +207,15 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
   // Add host flag for Linux
   args.push(...addHostFlag());
 
+  // Match host UID so bind-mounted volumes are writable
+  if (os.platform() !== 'win32') {
+    const uid = process.getuid?.();
+    const gid = process.getgid?.();
+    if (uid != null && gid != null) {
+      args.push('--user', `${uid}:${gid}`);
+    }
+  }
+
   // Volume mounts
   args.push('-v', `${opts.workspacesDir}:/app/workspaces`);
   args.push('-v', `${opts.repo.hostPath}:${opts.repo.containerPath}`);
@@ -257,7 +266,8 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
     args.push('--pipeline-testing');
   }
 
-  return spawn('docker', args, { stdio: 'pipe' });
+  // Prevent MSYS/Git Bash from converting Unix paths (e.g. /repos/my-repo) to Windows paths
+  return spawn('docker', args, { stdio: 'pipe', ...(os.platform() === 'win32' && { env: { ...process.env, MSYS_NO_PATHCONV: '1' } }) });
 }
 
 /**
